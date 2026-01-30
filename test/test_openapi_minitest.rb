@@ -90,7 +90,7 @@ class TestGenerator < Minitest::Test
     generator = OpenapiMinitest::OpenAPI::Generator.new
     doc = generator.generate
 
-    assert_equal "3.0.3", doc["openapi"]
+    assert_equal "3.1.0", doc["openapi"]
     assert_equal "API Documentation", doc["info"]["title"]
     assert_equal "1.0.0", doc["info"]["version"]
   end

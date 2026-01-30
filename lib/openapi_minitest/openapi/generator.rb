@@ -13,7 +13,7 @@ module OpenapiMinitest
 
       def generate
         {
-          "openapi" => "3.0.3",
+          "openapi" => "3.1.0",
           "info" => build_info,
           "servers" => build_servers,
           "paths" => build_paths,

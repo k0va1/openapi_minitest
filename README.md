@@ -1,6 +1,6 @@
 # OpenapiMinitest
 
-Generate OpenAPI 3.0 documentation from your Minitest integration tests. No DSL, no magic - just one helper method.
+Generate OpenAPI 3.1 documentation from your Minitest integration tests. No DSL, no magic - just one helper method.
 
 ## Installation
 
@@ -212,6 +212,17 @@ document_response schema: {
     status: { type: :string }
   }
 }
+
+# Nullable fields (OpenAPI 3.1 syntax - use type array instead of nullable: true)
+OpenapiMinitest.define_schema :Article, {
+  type: :object,
+  properties: {
+    id: { type: :integer },
+    title: { type: :string },
+    subtitle: { type: [:string, :null] },  # nullable string
+    published_at: { type: [:string, :null], format: :datetime }
+  }
+}
 ```
 
 ## Features
@@ -230,7 +241,7 @@ document_response schema: {
    - Request method, path, parameters, headers
    - Response status, body
    - Schema reference or definition
-4. After tests run, generates OpenAPI 3.0 JSON
+4. After tests run, generates OpenAPI 3.1 JSON
 
 ## Path Parameter Detection
 
