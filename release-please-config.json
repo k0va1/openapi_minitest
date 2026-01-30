@@ -1,0 +1,16 @@
+{
+  "packages": {
+    ".": {
+      "package-name": "openapi_minitest",
+      "include-component-in-tag": false,
+      "changelog-path": "CHANGELOG.md",
+      "release-type": "ruby",
+      "bump-minor-pre-major": true,
+      "bump-patch-for-minor-pre-major": true,
+      "draft": false,
+      "prerelease": false,
+      "version-file": "lib/openapi_minitest/version.rb"
+    }
+  },
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json"
+}
