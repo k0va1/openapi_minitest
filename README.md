@@ -229,7 +229,8 @@ OpenapiMinitest.define_schema :Article, {
 
 - **No DSL** - Just one helper method, write normal Minitest tests
 - **Schema validation** - Optionally validate responses against schemas during tests
-- **Auto-detection** - Automatically extracts path parameters, query params, headers
+- **Auto-detection** - Automatically extracts path parameters, query params
+- **Security handling** - Authorization headers automatically use configured security schemes
 - **Multiple examples** - Each test becomes an example in the docs
 - **Request bodies** - Captures POST/PUT/PATCH request bodies as examples
 
@@ -251,6 +252,40 @@ The gem automatically detects numeric IDs in paths and converts them:
 /api/users/123           -> /api/users/{user_id}
 /api/users/123/posts/456 -> /api/users/{user_id}/posts/{post_id}
 ```
+
+## Security / Authentication
+
+When you configure `security_schemes` and your tests include an `Authorization` header, the gem automatically adds the `security` property to those operations:
+
+```ruby
+OpenapiMinitest.configure do |config|
+  config.security_schemes = {
+    bearer: {
+      type: :http,
+      scheme: :bearer
+    }
+  }
+end
+```
+
+Operations with Authorization headers will be generated with:
+
+```yaml
+security:
+  - bearer: []
+```
+
+## Validator Compatibility
+
+This gem generates OpenAPI 3.1.0 which supports type arrays for nullable fields:
+
+```yaml
+type:
+  - string
+  - 'null'
+```
+
+Some validators may not fully support OpenAPI 3.1.0 yet. If you encounter validation errors about type arrays, ensure your validator supports OpenAPI 3.1.0.
 
 ## Non-Rails Usage
 

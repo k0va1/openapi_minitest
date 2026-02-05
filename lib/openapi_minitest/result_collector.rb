@@ -29,7 +29,8 @@ module OpenapiMinitest
         tags: [],
         operation_id: operation_id,
         deprecated: deprecated,
-        parameters: extract_parameters(request, path)
+        parameters: extract_parameters(request, path),
+        requires_auth: has_authorization_header?(request)
       }
 
       # Merge tags from all tests
@@ -130,18 +131,13 @@ module OpenapiMinitest
         end
       end
 
-      # Header parameters (common auth headers)
-      auth_header = request.headers["Authorization"] || request.headers["HTTP_AUTHORIZATION"]
-      if auth_header
-        params << {
-          name: "Authorization",
-          in: "header",
-          required: false,
-          schema: {type: "string"}
-        }
-      end
+      # Note: Authorization header is handled via security schemes, not parameters
 
       params
+    end
+
+    def has_authorization_header?(request)
+      !!(request.headers["Authorization"] || request.headers["HTTP_AUTHORIZATION"])
     end
 
     def infer_schema_type(value)

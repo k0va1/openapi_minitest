@@ -74,6 +74,11 @@ module OpenapiMinitest
         op["operationId"] = operation[:operation_id] if operation[:operation_id]
         op["deprecated"] = true if operation[:deprecated]
 
+        # Security (if operation requires auth and security schemes are configured)
+        if operation[:requires_auth] && @config.security_schemes.any?
+          op["security"] = @config.security_schemes.keys.map { |scheme| {scheme.to_s => []} }
+        end
+
         # Parameters
         if operation[:parameters]&.any?
           op["parameters"] = operation[:parameters].map { |p| stringify_keys(p) }
