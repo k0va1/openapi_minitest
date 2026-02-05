@@ -28,7 +28,7 @@ OpenapiMinitest.configure do |config|
   config.title = "My API"
   config.version = "1.0.0"
   config.description = "API documentation"
-  config.output_path = "doc/openapi.json"
+  config.output_path = "doc/openapi.yml"  # YAML by default
   config.servers = ["https://api.example.com"]
 end
 ```
@@ -164,7 +164,7 @@ OpenapiMinitest.configure do |config|
   config.title = "My API"              # API title
   config.version = "1.0.0"             # API version
   config.description = "Description"   # API description
-  config.output_path = "doc/api.json"  # Output file path
+  config.output_path = "doc/openapi.yml"  # Output file path (YAML by default)
   config.servers = [                   # Server URLs
     "https://api.example.com",
     { url: "https://staging.example.com", description: "Staging" }
@@ -241,7 +241,7 @@ OpenapiMinitest.define_schema :Article, {
    - Request method, path, parameters, headers
    - Response status, body
    - Schema reference or definition
-4. After tests run, generates OpenAPI 3.1 JSON
+4. After tests run, generates OpenAPI 3.1 YAML
 
 ## Path Parameter Detection
 

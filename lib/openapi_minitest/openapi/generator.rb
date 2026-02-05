@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "json"
+require "yaml"
 require "fileutils"
 
 module OpenapiMinitest
@@ -24,7 +24,7 @@ module OpenapiMinitest
       def write
         path = @config.output_path
         FileUtils.mkdir_p(File.dirname(path))
-        File.write(path, JSON.pretty_generate(generate))
+        File.write(path, generate.to_yaml)
         path
       end
 

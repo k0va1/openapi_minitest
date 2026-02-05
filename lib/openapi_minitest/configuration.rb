@@ -15,7 +15,7 @@ module OpenapiMinitest
       @title = "API Documentation"
       @version = "1.0.0"
       @description = nil
-      @output_path = "doc/openapi.json"
+      @output_path = "doc/openapi.yml"
       @servers = []
       @security_schemes = {}
       @tags = []
