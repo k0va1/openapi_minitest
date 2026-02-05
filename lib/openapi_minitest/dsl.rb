@@ -16,6 +16,8 @@ module OpenapiMinitest
     # @param tags [Array<String>] Tags for grouping endpoints
     # @param operation_id [String, nil] Unique operation identifier
     # @param deprecated [Boolean] Whether this endpoint is deprecated
+    # @param strict [Boolean, nil] Strict validation mode - fails if response contains undocumented fields.
+    #   When nil (default), uses the global config.strict_validation setting.
     #
     # @example Basic usage
     #   def test_returns_users
@@ -45,10 +47,18 @@ module OpenapiMinitest
     #     document_response description: "User deleted"
     #   end
     #
-    def document_response(schema: nil, summary: nil, description: nil, tags: [], operation_id: nil, deprecated: false)
+    # @example Strict validation (fails if response has undocumented fields)
+    #   def test_returns_user_strict
+    #     get "/api/users/1"
+    #     assert_response 200
+    #     document_response schema: :User, strict: true
+    #   end
+    #
+    def document_response(schema: nil, summary: nil, description: nil, tags: [], operation_id: nil, deprecated: false, strict: nil)
       # Validate schema if provided and validation is enabled
       if schema && OpenapiMinitest.configuration.validate_schema && response.body.present?
-        validate_response_schema!(schema)
+        use_strict = strict.nil? ? OpenapiMinitest.configuration.strict_validation : strict
+        validate_response_schema!(schema, strict: use_strict)
       end
 
       # Record for OpenAPI generation
@@ -67,8 +77,9 @@ module OpenapiMinitest
 
     private
 
-    def validate_response_schema!(schema)
+    def validate_response_schema!(schema, strict: false)
       resolved = resolve_schema(schema)
+      resolved = apply_strict_validation(resolved) if strict
       body = JSON.parse(response.body)
 
       errors = JSON::Validator.fully_validate(
@@ -83,6 +94,36 @@ module OpenapiMinitest
       flunk "Response does not match schema:\n#{errors.join("\n")}\n\nBody: #{response.body}"
     rescue JSON::ParserError => e
       flunk "Response is not valid JSON: #{e.message}"
+    end
+
+    def apply_strict_validation(schema)
+      case schema
+      when Hash
+        result = schema.transform_values { |v| apply_strict_validation(v) }
+        # Add additionalProperties: false to object types
+        if object_type?(result)
+          result[:additionalProperties] = false unless result.key?(:additionalProperties) || result.key?("additionalProperties")
+        end
+        result
+      when Array
+        schema.map { |item| apply_strict_validation(item) }
+      else
+        schema
+      end
+    end
+
+    def object_type?(schema)
+      type = schema[:type] || schema["type"]
+      return false unless type
+
+      case type
+      when :object, "object"
+        true
+      when Array
+        type.any? { |t| t == :object || t == "object" }
+      else
+        false
+      end
     end
 
     def resolve_schema(schema)

@@ -176,6 +176,7 @@ OpenapiMinitest.configure do |config|
     }
   }
   config.validate_schema = true        # Validate responses against schemas
+  config.strict_validation = false     # Fail if response contains undocumented fields
 end
 ```
 
@@ -190,7 +191,8 @@ document_response(
   description: "Response desc", # Description of this response
   tags: ["Tag1", "Tag2"],       # Tags for grouping
   operation_id: "getUsers",     # Unique operation ID
-  deprecated: false             # Mark endpoint as deprecated
+  deprecated: false,            # Mark endpoint as deprecated
+  strict: nil                   # Override strict validation (true/false/nil for global config)
 )
 ```
 
@@ -229,10 +231,45 @@ OpenapiMinitest.define_schema :Article, {
 
 - **No DSL** - Just one helper method, write normal Minitest tests
 - **Schema validation** - Optionally validate responses against schemas during tests
+- **Strict validation** - Fail tests when responses contain undocumented fields
 - **Auto-detection** - Automatically extracts path parameters, query params
 - **Security handling** - Authorization headers automatically use configured security schemes
 - **Multiple examples** - Each test becomes an example in the docs
 - **Request bodies** - Captures POST/PUT/PATCH request bodies as examples
+
+## Strict Validation
+
+Enable strict validation to catch undocumented fields in API responses. This helps ensure your documentation stays in sync with your implementation.
+
+When strict mode is enabled, the test will fail if the response contains any fields not defined in the schema:
+
+```
+Response does not match schema:
+The property '#/' contains additional properties ["unexpected_field"] outside of the schema when none are allowed
+```
+
+### Global Configuration
+
+```ruby
+OpenapiMinitest.configure do |config|
+  config.strict_validation = true  # All schemas strictly validated
+end
+```
+
+### Per-Call Override
+
+```ruby
+# Force strict validation for this endpoint
+document_response schema: :User, strict: true
+
+# Disable strict validation for this endpoint (e.g., third-party responses)
+document_response schema: :ExternalData, strict: false
+
+# Use global config setting (default behavior)
+document_response schema: :User
+```
+
+Strict validation works by automatically injecting `additionalProperties: false` into all object schemas during validation. This includes nested objects and objects within arrays. If a schema already defines `additionalProperties`, that value is preserved.
 
 ## How It Works
 

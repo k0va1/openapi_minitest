@@ -83,6 +83,122 @@ class TestResultCollector < Minitest::Test
   end
 end
 
+class TestStrictValidation < Minitest::Test
+  include OpenapiMinitest::TestHelpers
+
+  def test_strict_validation_config_default_is_false
+    assert_equal false, OpenapiMinitest.configuration.strict_validation
+  end
+
+  def test_strict_validation_config_can_be_set
+    OpenapiMinitest.configure do |config|
+      config.strict_validation = true
+    end
+
+    assert_equal true, OpenapiMinitest.configuration.strict_validation
+  end
+
+  def test_apply_strict_validation_adds_additional_properties_false
+    dsl = Object.new.extend(OpenapiMinitest::DSL)
+
+    schema = {
+      type: :object,
+      properties: {
+        id: {type: :integer},
+        name: {type: :string}
+      }
+    }
+
+    result = dsl.send(:apply_strict_validation, schema)
+
+    assert_equal false, result[:additionalProperties]
+  end
+
+  def test_apply_strict_validation_handles_nested_objects
+    dsl = Object.new.extend(OpenapiMinitest::DSL)
+
+    schema = {
+      type: :object,
+      properties: {
+        user: {
+          type: :object,
+          properties: {
+            id: {type: :integer}
+          }
+        }
+      }
+    }
+
+    result = dsl.send(:apply_strict_validation, schema)
+
+    assert_equal false, result[:additionalProperties]
+    assert_equal false, result[:properties][:user][:additionalProperties]
+  end
+
+  def test_apply_strict_validation_handles_array_of_objects
+    dsl = Object.new.extend(OpenapiMinitest::DSL)
+
+    schema = {
+      type: :array,
+      items: {
+        type: :object,
+        properties: {
+          id: {type: :integer}
+        }
+      }
+    }
+
+    result = dsl.send(:apply_strict_validation, schema)
+
+    assert_nil result[:additionalProperties] # arrays don't get additionalProperties
+    assert_equal false, result[:items][:additionalProperties]
+  end
+
+  def test_apply_strict_validation_preserves_existing_additional_properties
+    dsl = Object.new.extend(OpenapiMinitest::DSL)
+
+    schema = {
+      type: :object,
+      additionalProperties: true,
+      properties: {
+        id: {type: :integer}
+      }
+    }
+
+    result = dsl.send(:apply_strict_validation, schema)
+
+    assert_equal true, result[:additionalProperties]
+  end
+
+  def test_apply_strict_validation_handles_nullable_object_type
+    dsl = Object.new.extend(OpenapiMinitest::DSL)
+
+    schema = {
+      type: [:object, :null],
+      properties: {
+        id: {type: :integer}
+      }
+    }
+
+    result = dsl.send(:apply_strict_validation, schema)
+
+    assert_equal false, result[:additionalProperties]
+  end
+
+  def test_object_type_detection
+    dsl = Object.new.extend(OpenapiMinitest::DSL)
+
+    assert dsl.send(:object_type?, {type: :object})
+    assert dsl.send(:object_type?, {type: "object"})
+    assert dsl.send(:object_type?, {type: [:object, :null]})
+    assert dsl.send(:object_type?, {type: ["object", "null"]})
+
+    refute dsl.send(:object_type?, {type: :string})
+    refute dsl.send(:object_type?, {type: :array})
+    refute dsl.send(:object_type?, {})
+  end
+end
+
 class TestGenerator < Minitest::Test
   include OpenapiMinitest::TestHelpers
 
