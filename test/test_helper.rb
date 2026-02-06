@@ -10,6 +10,7 @@ module OpenapiMinitest
     def setup
       super
       OpenapiMinitest.reset!
+      OpenapiMinitest::ResultCollector.instance.reset!
     end
   end
 end
