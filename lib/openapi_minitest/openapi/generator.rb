@@ -63,7 +63,7 @@ module OpenapiMinitest
           paths[path][method] = build_operation(key, operation)
         end
 
-        paths
+        @config.sort_paths == :alphabetical ? paths.sort.to_h : paths
       end
 
       def build_operation(key, operation)

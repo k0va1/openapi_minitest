@@ -10,7 +10,8 @@ module OpenapiMinitest
       :security_schemes,
       :tags,
       :validate_schema,
-      :strict_validation
+      :strict_validation,
+      :sort_paths
 
     def initialize
       @title = "API Documentation"
@@ -22,6 +23,7 @@ module OpenapiMinitest
       @tags = []
       @validate_schema = true
       @strict_validation = false
+      @sort_paths = :alphabetical
     end
   end
 

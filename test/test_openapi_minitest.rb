@@ -245,6 +245,78 @@ class TestGenerator < Minitest::Test
     assert_equal "object", doc["components"]["schemas"]["User"]["type"]
   end
 
+  def test_sort_paths_defaults_to_alphabetical
+    assert_equal :alphabetical, OpenapiMinitest.configuration.sort_paths
+  end
+
+  def test_sorts_paths_alphabetically
+    collector = OpenapiMinitest::ResultCollector.instance
+    operations = collector.instance_variable_get(:@operations)
+    responses = collector.instance_variable_get(:@responses)
+
+    # Add operations in non-alphabetical order
+    [
+      {key: "delete /api/users/{user_id}", method: "delete", path: "/api/users/{user_id}"},
+      {key: "get /api/users", method: "get", path: "/api/users"},
+      {key: "post /api/posts", method: "post", path: "/api/posts"},
+      {key: "get /api/posts", method: "get", path: "/api/posts"},
+      {key: "post /api/users", method: "post", path: "/api/users"}
+    ].each do |op|
+      operations[op[:key]] = {
+        method: op[:method],
+        path: op[:path],
+        summary: nil,
+        tags: [],
+        operation_id: nil,
+        deprecated: false,
+        parameters: []
+      }
+      responses[op[:key]] = {
+        "200" => [{description: "OK", schema: nil, example: nil, test_name: nil, request_example: nil}]
+      }
+    end
+
+    generator = OpenapiMinitest::OpenAPI::Generator.new
+    doc = generator.generate
+
+    assert_equal ["/api/posts", "/api/users", "/api/users/{user_id}"], doc["paths"].keys
+  end
+
+  def test_preserves_insertion_order_when_sort_paths_is_as_recorded
+    OpenapiMinitest.configure do |config|
+      config.sort_paths = :as_recorded
+    end
+
+    collector = OpenapiMinitest::ResultCollector.instance
+    operations = collector.instance_variable_get(:@operations)
+    responses = collector.instance_variable_get(:@responses)
+
+    # Add operations in specific non-alphabetical order
+    [
+      {key: "get /api/users", method: "get", path: "/api/users"},
+      {key: "get /api/posts", method: "get", path: "/api/posts"},
+      {key: "get /api/accounts", method: "get", path: "/api/accounts"}
+    ].each do |op|
+      operations[op[:key]] = {
+        method: op[:method],
+        path: op[:path],
+        summary: nil,
+        tags: [],
+        operation_id: nil,
+        deprecated: false,
+        parameters: []
+      }
+      responses[op[:key]] = {
+        "200" => [{description: "OK", schema: nil, example: nil, test_name: nil, request_example: nil}]
+      }
+    end
+
+    generator = OpenapiMinitest::OpenAPI::Generator.new
+    doc = generator.generate
+
+    assert_equal ["/api/users", "/api/posts", "/api/accounts"], doc["paths"].keys
+  end
+
   def test_includes_response_examples
     OpenapiMinitest.define_schema :User, {type: :object}
 
