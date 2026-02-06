@@ -1,61 +1,72 @@
 # frozen_string_literal: true
 
 require "singleton"
+require "monitor"
 require "json"
 
 module OpenapiMinitest
   class ResultCollector
     include Singleton
+    include MonitorMixin
 
     def initialize
+      super # MonitorMixin requires super
       reset!
     end
 
     def reset!
-      @operations = {}  # "METHOD /path" => operation data
-      @responses = {}   # "METHOD /path" => { status => [response_data] }
+      synchronize do
+        @operations = {}  # "METHOD /path" => operation data
+        @responses = {}   # "METHOD /path" => { status => [response_data] }
+      end
     end
 
     def record(request:, response:, schema:, summary:, description:, tags:, operation_id:, deprecated:, test_name:)
-      method = request.request_method.downcase
-      path = normalize_path(request.path)
-      key = "#{method} #{path}"
+      synchronize do
+        method = request.request_method.downcase
+        path = normalize_path(request.path)
+        key = "#{method} #{path}"
 
-      # Store operation metadata (first one wins for summary, tags merge)
-      @operations[key] ||= {
-        method: method,
-        path: path,
-        summary: summary,
-        tags: [],
-        operation_id: operation_id,
-        deprecated: deprecated,
-        parameters: extract_parameters(request, path),
-        requires_auth: has_authorization_header?(request)
-      }
+        # Store operation metadata (first one wins for summary, tags merge)
+        @operations[key] ||= {
+          method: method,
+          path: path,
+          summary: summary,
+          tags: [],
+          operation_id: operation_id,
+          deprecated: deprecated,
+          parameters: extract_parameters(request, path),
+          requires_auth: has_authorization_header?(request)
+        }
 
-      # Merge tags from all tests
-      @operations[key][:tags] = (@operations[key][:tags] + tags).uniq
+        # Merge tags from all tests
+        @operations[key][:tags] = (@operations[key][:tags] + tags).uniq
 
-      # Store response data grouped by status
-      status = response.status.to_s
-      @responses[key] ||= {}
-      @responses[key][status] ||= []
+        # Store response data grouped by status
+        status = response.status.to_s
+        @responses[key] ||= {}
+        @responses[key][status] ||= []
 
-      @responses[key][status] << {
-        description: description || default_description(response.status),
-        schema: schema,
-        example: parse_body(response.body),
-        test_name: test_name,
-        request_example: extract_request_example(request)
-      }
+        @responses[key][status] << {
+          description: description || default_description(response.status),
+          schema: schema,
+          example: parse_body(response.body),
+          test_name: test_name,
+          request_example: extract_request_example(request)
+        }
+      end
     end
 
-    attr_reader :operations
+    def operations
+      synchronize { @operations }
+    end
 
-    attr_reader :responses
+    def responses
+      synchronize { @responses }
+    end
 
     def empty?
-      @operations.empty?
+      synchronize { @operations.empty? }
     end
 
     private

@@ -199,6 +199,58 @@ class TestStrictValidation < Minitest::Test
   end
 end
 
+class TestResultCollectorThreadSafety < Minitest::Test
+  include OpenapiMinitest::TestHelpers
+
+  def test_concurrent_record_calls
+    collector = OpenapiMinitest::ResultCollector.instance
+    thread_count = 10
+    records_per_thread = 50
+
+    threads = thread_count.times.map do |t|
+      Thread.new(t) do |thread_idx|
+        records_per_thread.times do |r|
+          request = mock_request("GET", "/api/items/#{thread_idx * 1000 + r}")
+          response = mock_response(200, {id: thread_idx * 1000 + r}.to_json)
+
+          collector.record(
+            request: request,
+            response: response,
+            schema: {type: :object},
+            summary: "Get item",
+            description: "OK",
+            tags: ["Items"],
+            operation_id: nil,
+            deprecated: false,
+            test_name: "test_thread_#{thread_idx}_record_#{r}"
+          )
+        end
+      end
+    end
+
+    threads.each(&:join)
+
+    # All records should target the same normalized path /api/items/{item_id}
+    key = "get /api/items/{item_id}"
+    assert collector.operations.key?(key), "Expected operation key '#{key}'"
+    assert_equal thread_count * records_per_thread, collector.responses[key]["200"].size
+  end
+
+  private
+
+  def mock_request(method, path)
+    body = StringIO.new("")
+    headers = {}
+    Struct.new(:request_method, :path, :query_parameters, :headers, :body, keyword_init: true)
+      .new(request_method: method, path: path, query_parameters: {}, headers: headers, body: body)
+  end
+
+  def mock_response(status, body)
+    Struct.new(:status, :body, keyword_init: true)
+      .new(status: status, body: body)
+  end
+end
+
 class TestGenerator < Minitest::Test
   include OpenapiMinitest::TestHelpers
 
