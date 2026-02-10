@@ -1,0 +1,9 @@
+class ApiDocsController < ApplicationController
+  def index
+    render layout: false
+  end
+
+  def spec
+    send_file Rails.root.join("doc/openapi.yml"), type: "text/yaml", disposition: "inline"
+  end
+end

@@ -155,6 +155,22 @@ OPENAPI_GENERATE=true rails test test/integration/
 rails openapi:generate
 ```
 
+### 5. Browse Documentation (optional)
+
+Run the install generator to add an API docs page powered by [Scalar](https://github.com/scalar/scalar):
+
+```bash
+rails generate openapi_minitest:install
+```
+
+This creates:
+
+- `app/controllers/api_docs_controller.rb` — serves the docs UI and the OpenAPI spec file
+- `app/views/api_docs/index.html.erb` — Scalar API reference page (titled with your Rails app name)
+- Routes: `GET /api-docs` and `GET /openapi.yml`
+
+Visit `/api-docs` in your browser to explore your API documentation interactively.
+
 ## API Reference
 
 ### Configuration Options

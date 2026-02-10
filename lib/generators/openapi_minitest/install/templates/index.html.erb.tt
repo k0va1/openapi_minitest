@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= app_name %> API Documentation</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+  <script id="api-reference" data-url="/openapi.yml"></script>
+  <script>
+    var configuration = {
+      theme: 'elysiajs',
+      expandAllResponses: true,
+      layout: 'modern',
+      defaultOpenAllTags: true,
+      hideClientButton: true,
+      showSidebar: true,
+      showDeveloperTools: 'localhost',
+      showToolbar: 'localhost',
+      operationTitleSource: 'summary',
+      persistAuth: false,
+      telemetry: true,
+      isEditable: false,
+      isLoading: false,
+      hideModels: false,
+      documentDownloadType: 'both',
+      hideTestRequestButton: false,
+      hideSearch: false,
+      showOperationId: false,
+      hideDarkModeToggle: false,
+      withDefaultFonts: true,
+      expandAllModelSections: false,
+      orderSchemaPropertiesBy: 'alpha',
+      orderRequiredPropertiesFirst: true,
+      _integration: 'html',
+      darkMode: true,
+      hiddenClients: ['unirest'],
+      defaultHttpClient: {
+        targetKey: 'ruby',
+        clientKey: 'faraday'
+      }
+    }
+    document.getElementById('api-reference').dataset.configuration = JSON.stringify(configuration)
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+</body>
+</html>

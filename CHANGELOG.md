@@ -17,5 +17,3 @@
 * reset ResultCollector between tests to prevent test pollution ([ecc5bc2](https://github.com/k0va1/openapi_minitest/commit/ecc5bc268a6e8833eebdc6566441c0032b93f2ec))
 * set manifest version to 0.0.0 for initial release as 0.1.0 ([7e340df](https://github.com/k0va1/openapi_minitest/commit/7e340dfdecc3bafdd1b3bf6147fc9e92e2e10f7e))
 * use security schemes instead of Authorization header parameter ([eb092ef](https://github.com/k0va1/openapi_minitest/commit/eb092efaa34ae92745c890d88dea18b8b55ca7f8))
-
-## Changelog
