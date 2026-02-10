@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.1](https://github.com/k0va1/openapi_minitest/compare/v0.1.0...v0.1.1) (2026-02-10)
+
+
+### Features
+
+* add configurable path sorting with sort_paths option ([432d5ea](https://github.com/k0va1/openapi_minitest/commit/432d5ea33586adc2a09dd0d6c9ff086767b7fbc5))
+* add Rails generator for API docs controller with Scalar UI ([77b5627](https://github.com/k0va1/openapi_minitest/commit/77b562717bddf97ecc1c67b27855bf1e4673d1c5))
+* add thread safety to ResultCollector using MonitorMixin ([18dd97d](https://github.com/k0va1/openapi_minitest/commit/18dd97dcd2b1925b2caee98eb6d45c3194e5da74))
+
 ## 0.1.0 (2026-02-06)
 
 
