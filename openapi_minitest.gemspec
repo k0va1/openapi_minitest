@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.description = "A Ruby gem that generates OpenAPI 3.0 documentation from Minitest integration tests in Rails applications. Uses serializers as the single source of truth for response schemas."
   spec.homepage = "https://github.com/k0va1/openapi_minitest"
   spec.license = "MIT"
-  spec.required_ruby_version = ">= 3.2.0"
+  spec.required_ruby_version = ">= 3.3.0"
 
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = spec.homepage
