@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/k0va1/openapi_minitest/compare/v0.1.1...v0.1.2) (2026-07-31)
+
+
+### Miscellaneous Chores
+
+* release 0.1.2 ([38cc571](https://github.com/k0va1/openapi_minitest/commit/38cc571de1648132457dc3268495f92faf74fbf1))
+
 ## [0.1.1](https://github.com/k0va1/openapi_minitest/compare/v0.1.0...v0.1.1) (2026-02-10)
 
 
